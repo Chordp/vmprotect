@@ -14,4 +14,3 @@ proc-macro2 = "1"
 quote = "1"
 syn = { version = "2", features = ["full"] }
 darling = "0"
-vmprotect-sys.path = "../vmprotect-sys"

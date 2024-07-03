@@ -39,36 +39,36 @@ impl ProtectContext{
             ProtectArgs { virtualize:true,mutate:false,lock:false,.. } => {
                 //虚拟化
                 quote!{
-                    unsafe {vmprotect_sys::VMProtectBeginVirtualization(&[#(#name),*,0u8] as *const u8 as *const i8)};
+                    unsafe {vmprotect::vmprotect_sys::VMProtectBeginVirtualization(&[#(#name),*,0u8] as *const u8 as *const i8)};
                 }
             },
             ProtectArgs { virtualize:true,mutate:false,lock:true,.. } => {
                 //虚拟化+lock
                 quote!{
-                    unsafe {vmprotect_sys::VMProtectBeginVirtualizationLockByKey(&[#(#name),*,0u8] as *const u8 as *const i8)};
+                    unsafe {vmprotect::vmprotect_sys::VMProtectBeginVirtualizationLockByKey(&[#(#name),*,0u8] as *const u8 as *const i8)};
                 }
             },
             ProtectArgs { virtualize:false,mutate:true,.. } => {
                 //变异
                 quote!{
-                    unsafe {vmprotect_sys::VMProtectBeginMutation(&[#(#name),*,0u8] as *const u8 as *const i8)};
+                    unsafe {vmprotect::vmprotect_sys::VMProtectBeginMutation(&[#(#name),*,0u8] as *const u8 as *const i8)};
                 }
             },
             ProtectArgs { virtualize:true,mutate:true,lock:false,.. } => {
                 //变异+虚拟化
                 quote!{
-                    unsafe {vmprotect_sys::VMProtectBeginUltra(&[#(#name),*,0u8] as *const u8 as *const i8)};
+                    unsafe {vmprotect::vmprotect_sys::VMProtectBeginUltra(&[#(#name),*,0u8] as *const u8 as *const i8)};
                 }
             },
             ProtectArgs { virtualize:true,mutate:true,lock:true,.. } => {
                 //变异+虚拟化
                 quote!{
-                    unsafe {vmprotect_sys::VMProtectBeginUltraLockByKey(&[#(#name),*,0u8] as *const u8 as *const i8)};
+                    unsafe {vmprotect::vmprotect_sys::VMProtectBeginUltraLockByKey(&[#(#name),*,0u8] as *const u8 as *const i8)};
                 }
             },
             _=>{
                 quote!{
-                    unsafe {vmprotect_sys::VMProtectBegin(&[#(#name),*,0u8] as *const u8 as *const i8)};
+                    unsafe {vmprotect::vmprotect_sys::VMProtectBegin(&[#(#name),*,0u8] as *const u8 as *const i8)};
                 }
             }
         };
@@ -80,7 +80,7 @@ impl ProtectContext{
             let ptr = &mut res as *mut _;
 
             unsafe { std::arch::asm!("nop {}", in(reg) ptr) };
-            unsafe {vmprotect_sys::VMProtectEnd()};
+            unsafe { vmprotect::vmprotect_sys::VMProtectEnd()};
             res
         });
         body.block = Box::new(block);
