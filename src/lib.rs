@@ -2,6 +2,15 @@ use std::arch::asm;
 
 #[doc(hidden)]
 pub use real_c_string::real_c_string as marker_name;
+/// virtualize 虚拟化
+///
+/// mutate 变异
+///
+/// lock 验证
+///
+/// ultra 变异+虚拟化
+///
+/// rename 重命名
 pub use vmprotect_macros::protected as protect;
 #[doc(hidden)]
 pub use vmprotect_sys;

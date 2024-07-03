@@ -4,7 +4,15 @@ use darling::ast::NestedMeta;
 use syn::ItemFn;
 use proc_macro::TokenStream;
 use protect::ProtectArgs;
-
+/// virtualize 虚拟化
+///
+/// mutate 变异
+///
+/// lock 验证
+///
+/// ultra 变异+虚拟化
+///
+/// rename 重命名
 #[proc_macro_attribute]
 pub fn protected(args: TokenStream, input: TokenStream) -> TokenStream {
     let attr_args = match NestedMeta::parse_meta_list(args.into()) {
