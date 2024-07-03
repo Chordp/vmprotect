@@ -81,6 +81,7 @@ impl ProtectContext{
 
             unsafe { std::arch::asm!("nop {}", in(reg) ptr) };
             unsafe {vmprotect_sys::VMProtectEnd()};
+            res
         });
         body.block = Box::new(block);
         let output = quote!{
