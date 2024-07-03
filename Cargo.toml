@@ -2,7 +2,7 @@
 name = "vmprotect"
 version = "0.2.0"
 authors = ["Лач <iam@lach.pw>"]
-edition = "2018"
+edition = "2021"
 description = "Unofficial VMProtect SDK for Rust"
 license = "MIT"
 repository = "https://github.com/CertainLach/vmprotect/"
@@ -15,8 +15,8 @@ service = []
 
 [dependencies]
 real_c_string = "1.0"
-widestring = "0.4.3"
-bitflags = "1.2"
+widestring = "1"
+bitflags = "2"
 enum_primitive = "0.1.1"
 num-traits = "0.2.14"
 chrono = "0.4.19"

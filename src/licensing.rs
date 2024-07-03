@@ -1,5 +1,5 @@
 use bitflags::bitflags;
-use chrono::{offset::TimeZone, Date, Utc};
+use chrono::{offset::TimeZone, Utc,DateTime};
 use std::ffi::NulError;
 use std::ffi::{CStr, CString};
 use std::os::raw::c_char;
@@ -89,6 +89,7 @@ pub fn deactivate_license(serial: impl Into<Vec<u8>>) -> Result<(), ActivationSt
 }
 
 bitflags! {
+    #[derive(Default, Debug, PartialEq, Eq, Clone, Copy, Hash)]
     pub struct SerialState: u32 {
         const CORRUPTED = 0x00000001;
         const INVALID = 0x00000002;
@@ -101,7 +102,7 @@ bitflags! {
 }
 impl SerialState {
     pub fn new(value: u32) -> Self {
-        SerialState { bits: value }
+        SerialState::from_bits_truncate(value)
     }
     #[inline(always)]
     pub fn is_success(&self) -> bool {
@@ -133,33 +134,31 @@ impl SerialState {
     }
 }
 
-fn convert_date(date: &VMProtectDate) -> Option<Date<Utc>> {
+fn convert_date(date: &VMProtectDate) -> Option<DateTime<Utc>> {
     if date.w_year == 0 && date.b_month == 0 && date.b_day == 0 {
         return None;
     }
-    Some(Utc.ymd(date.w_year as i32, date.b_month as u32, date.b_day as u32))
+    Utc.with_ymd_and_hms(date.w_year as i32, date.b_month as u32, date.b_day as u32, 0, 0, 0).latest()
 }
 
 impl From<VMProtectSerialNumberData> for SerialNumberData {
     // Unaligned read performed here
     #[allow(unused_unsafe)]
     fn from(data: VMProtectSerialNumberData) -> Self {
-        Self {
-            state: SerialState::new(data.state),
-            user_name: widestring::U16CString::from_vec_with_nul(
-                unsafe { data.user_name }.to_vec(),
-            )
-            .unwrap()
-            .to_string()
-            .unwrap(),
-            email: widestring::U16CString::from_vec_with_nul(unsafe { data.email }.to_vec())
-                .unwrap()
-                .to_string()
-                .unwrap(),
-            expire: convert_date(&data.expire),
-            max_build: convert_date(&data.max_build),
-            running_time: Duration::from_secs(60 * data.running_time as u64),
-            user_data: data.user_data[0..data.user_data_length as usize].to_vec(),
+        unsafe {
+            Self {
+                state: SerialState::new(data.state),
+                user_name: widestring::U16CString::from_vec_truncate(data.user_name)
+                    .to_string()
+                    .unwrap(),
+                email: widestring::U16CString::from_vec_truncate(data.email)
+                    .to_string()
+                    .unwrap(),
+                expire: convert_date(&data.expire),
+                max_build: convert_date(&data.max_build),
+                running_time: Duration::from_secs(60 * data.running_time as u64),
+                user_data: data.user_data[0..data.user_data_length as usize].to_vec(),
+            }
         }
     }
 }
@@ -172,9 +171,9 @@ pub struct SerialNumberData {
     /// Email
     email: String,
     /// Date of serial number expiration
-    expire: Option<Date<Utc>>,
+    expire: Option<DateTime<Utc>>,
     /// Max date of build, that will accept this key
-    max_build: Option<Date<Utc>>,
+    max_build: Option<DateTime<Utc>>,
     running_time: Duration,
     user_data: Vec<u8>,
 }
@@ -192,11 +191,11 @@ impl SerialNumberData {
         &self.email
     }
     #[inline(always)]
-    pub fn expire(&self) -> Option<Date<Utc>> {
+    pub fn expire(&self) -> Option<DateTime<Utc>> {
         self.expire
     }
     #[inline(always)]
-    pub fn max_build(&self) -> Option<Date<Utc>> {
+    pub fn max_build(&self) -> Option<DateTime<Utc>> {
         self.max_build
     }
     #[inline(always)]
