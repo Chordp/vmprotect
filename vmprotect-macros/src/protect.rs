@@ -33,6 +33,7 @@ impl ProtectContext{
         if body.sig.asyncness.is_some(){
             return Err(syn::Error::new_spanned(body.sig.fn_token,"不支持异步函数"));
         }
+
         let name = self.args.rename.unwrap_or_else(||body.sig.ident.to_string());
         let name = name.as_bytes();
         let begin = match self.args {
